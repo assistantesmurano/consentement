@@ -388,7 +388,7 @@ async function shareNow(){
   const file=new File([new Uint8Array(bytes)],name,{type:'application/pdf',lastModified:Date.now()});
   try{
     if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
-      await navigator.share({files:[file],title:name});
+      await navigator.share({files:[file]});
     }else{
       const url=URL.createObjectURL(new Blob([bytes],{type:'application/pdf'}));
       const a=document.createElement('a');a.href=url;a.download=name;
