@@ -293,10 +293,6 @@ async function generatePDF(){
   doc.text('CENTRE LASER MURANO',M,14);
   doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(...GREY);
   doc.text('Médecine Esthétique et Laser',M,20);
-  doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(...BLUE);
-  doc.text('PARIS 6  -  PARIS 8  -  MELUN  -  DEAUVILLE  -  BAYEUX',W/2,26,{align:'center'});
-  doc.setFont('helvetica','normal');doc.setTextColor(...ORANGE);
-  doc.text('01 43 54 12 33    01 45 71 09 82    01 60 68 95 39    02 31 87 74 90    02 31 16 94 20',W/2,30,{align:'center'});
   doc.setDrawColor(...LGREY);doc.setLineWidth(0.3);doc.line(M,33,W-M,33);
 
   let y=40;
@@ -351,9 +347,8 @@ async function generatePDF(){
   doc.setFont('helvetica','bold');doc.setTextColor(...ORANGE);
   const gt=doc.splitTextToSize("J'estime avoir été complètement informé(e) et je donne mon consentement éclairé pour le geste suivant : ",TW);
   doc.text(gt,M,y,{maxWidth:TW});y+=gt.length*5+2;
-  if(geste){doc.setFont('helvetica','normal');doc.setTextColor(...DARK);const gl=doc.splitTextToSize(geste,TW);doc.text(gl,M,y,{maxWidth:TW});y+=gl.length*5+2;}
-  doc.setDrawColor(...LGREY);doc.setLineWidth(0.3);
-  for(let i=0;i<5;i++){doc.line(M,y+1,W-M,y+1);y+=6;}
+  if(geste){doc.setFont('helvetica','normal');doc.setTextColor(...DARK);const gl=doc.splitTextToSize(geste,TW);doc.text(gl,M,y,{maxWidth:TW});y+=gl.length*5+4;}
+  else{doc.setDrawColor(...LGREY);doc.setLineWidth(0.3);for(let i=0;i<5;i++){doc.line(M,y+1,W-M,y+1);y+=6;}}
 
 
   y=Math.max(y+6,218);
