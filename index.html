@@ -26,7 +26,8 @@ body{background:#e8e4df;font-family:Arial,Helvetica,sans-serif;padding:12px 0 80
 .prat-row{display:flex;align-items:baseline;gap:0;margin:10px 0 10px}
 .prat-row .lbl{font-size:9.5px;font-weight:700;color:#c87828;white-space:nowrap}
 .prat-row input{border:1.5px solid #a8c8e8;border-radius:5px;outline:none;font-size:9.5px;color:#1a1a1a;background:#e8f4fd;flex:1;padding:3px 6px;min-width:0}
-.prat-row .date-grp{display:flex;align-items:baseline;margin-left:24px;gap:0;flex-shrink:0}
+.prat-row .praticien-input{flex:none;width:240px;max-width:100%}
+.prat-row .date-grp{display:flex;align-items:baseline;margin-left:auto;gap:0;flex-shrink:0;justify-content:flex-end}
 .prat-row .date-grp input{width:130px;border:1.5px solid #a8c8e8;border-radius:5px;background:#e8f4fd;padding:3px 6px}
 
 /* TITRE BOX */
@@ -49,6 +50,7 @@ body{background:#e8e4df;font-family:Arial,Helvetica,sans-serif;padding:12px 0 80
 .corps p{font-size:9.5px;color:#1a1a1a;text-align:justify;margin-bottom:9px;line-height:1.55}
 .soussigne{font-size:9.5px;color:#1a1a1a;line-height:1.55;margin-bottom:9px;text-align:justify}
 .soussigne .lbl{font-weight:700;color:#c87828}
+.soussigne-input{border:none;border-bottom:1px solid #999;outline:none;font-size:9.5px;font-weight:700;color:#1a1a1a;background:transparent;width:200px;padding:0 2px;margin:0 2px;display:inline-block;vertical-align:baseline;pointer-events:none;}
 
 /* GESTE */
 .geste-titre{font-size:9.5px;font-weight:700;color:#c87828;line-height:1.5;margin-bottom:4px}
@@ -111,10 +113,10 @@ body{background:#e8e4df;font-family:Arial,Helvetica,sans-serif;padding:12px 0 80
   <!-- PRATICIEN / DATE -->
   <div class="prat-row">
     <span class="lbl">Nom du praticien :&nbsp;</span>
-    <input type="text" id="praticien" placeholder="………………………………………………………">
+    <input type="text" id="praticien" class="praticien-input" placeholder="">
     <div class="date-grp">
       <span class="lbl">Date :&nbsp;</span>
-      <input type="date" id="dateConsult" value="2026-03-23">
+      <input type="date" id="dateConsult">
     </div>
   </div>
 
@@ -129,7 +131,7 @@ body{background:#e8e4df;font-family:Arial,Helvetica,sans-serif;padding:12px 0 80
     <div class="au">Au bénéfice de :</div>
     <div class="row">
       <span class="lbl">Nom :&nbsp;</span>
-      <input type="text" id="nom" class="nom-input" placeholder="………………………………………………………" autocapitalize="words">
+      <input type="text" id="nom" class="nom-input" placeholder="" autocapitalize="words">
       <div class="dob-grp">
         <span class="lbl">Date de naissance :&nbsp;</span>
         <input type="date" id="dateNaissance" class="dob-input">
@@ -137,7 +139,7 @@ body{background:#e8e4df;font-family:Arial,Helvetica,sans-serif;padding:12px 0 80
     </div>
     <div class="row">
       <span class="lbl">Prénom :&nbsp;</span>
-      <input type="text" id="prenom" class="prenom-input" placeholder="………………………………………………" autocapitalize="words">
+      <input type="text" id="prenom" class="prenom-input" placeholder="" autocapitalize="words">
     </div>
   </div>
 
@@ -152,7 +154,7 @@ body{background:#e8e4df;font-family:Arial,Helvetica,sans-serif;padding:12px 0 80
 
   <!-- JE SOUSSIGNE -->
   <div class="soussigne">
-    <span class="lbl">Je, soussigné(e)&nbsp;</span><input type="text" id="soussigne" style="border:1.5px solid #a8c8e8;border-radius:5px;outline:none;font-size:9.5px;background:#e8f4fd;width:220px;padding:3px 6px" placeholder="………………………………………………………………">&nbsp;m'engage à suivre toutes les recommandations et prescriptions pré et post-intervention données par le praticien qui les réalisera.
+    <span class="lbl">Je, soussigné(e)&nbsp;</span><input type="text" id="soussigneInput" class="soussigne-input" readonly tabindex="-1">&nbsp;m'engage à suivre toutes les recommandations et prescriptions pré et post-intervention données par le praticien qui les réalisera.
   </div>
   <div class="corps">
     <p>J'atteste avoir compris l'ensemble des explications, notamment que l'appréciation du résultat peut demander un délai plus long selon les cas.</p>
@@ -243,13 +245,17 @@ function isEmpty(id){const cv=document.getElementById(id);if(!cv)return true;con
 window.addEventListener('load',()=>{
   initCanvas('sigCanvas'); initCanvas('sigPraticien');
   setTimeout(()=>{initCanvas('sigCanvas');initCanvas('sigPraticien');},400);
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('dateConsult').value=today;
   // Auto-remplir soussigné quand nom/prénom changent
   ['nom','prenom'].forEach(id=>document.getElementById(id).addEventListener('input',syncSoussigne));
+  syncSoussigne();
 });
 function syncSoussigne(){
   const n=document.getElementById('nom').value.trim();
   const p=document.getElementById('prenom').value.trim();
-  document.getElementById('soussigne').value=(p&&n)?p+' '+n:'';
+  const el=document.getElementById('soussigneInput');
+  if(el) el.value=(p&&n)?p+' '+n:(p||n);
 }
 
 // ── LOADING ────────────────────────────────────────────────────
@@ -335,7 +341,8 @@ async function generatePDF(){
 
   doc.setFont('helvetica','bold');doc.setTextColor(...ORANGE);doc.text('Je, soussigné(e) ',M,y);
   const jeW=doc.getTextWidth('Je, soussigné(e) ');
-  doc.setFont('helvetica','normal');doc.setTextColor(...DARK);doc.text(prenom+' '+nom,M+jeW,y);y+=5;
+  const soussigneVal=document.getElementById('soussigneInput')?document.getElementById('soussigneInput').value.trim():'';
+  doc.setFont('helvetica','normal');doc.setTextColor(...DARK);doc.text(soussigneVal,M+jeW,y);y+=5;
   const eng=doc.splitTextToSize("m'engage à suivre toutes les recommandations et prescriptions pré et post-intervention données par le praticien qui les réalisera.",TW);
   doc.text(eng,M,y,{align:'justify',maxWidth:TW});y+=eng.length*5+4;
   const att=doc.splitTextToSize("J'atteste avoir compris l'ensemble des explications, notamment que l'appréciation du résultat peut demander un délai plus long selon les cas.",TW);
@@ -397,7 +404,7 @@ async function shareNow(){
 }
 
 function resetForm(){
-  ['nom','prenom','dateNaissance','praticien','geste','soussigne'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['nom','prenom','dateNaissance','praticien','geste','soussigneInput'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('dateConsult').value=new Date().toISOString().split('T')[0];
   clearSig('sigCanvas');clearSig('sigPraticien');
   document.getElementById('successScreen').classList.remove('active');
