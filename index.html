@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- saved from url=(0043)file:///C:/Users/patri/Downloads/index.html -->
 <html lang="fr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Consentement Éclairé – Centre Laser Murano</title>
-<script src="./index_files/jspdf.umd.min.js.téléchargement"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#e8e4df;font-family:Arial,Helvetica,sans-serif;padding:12px 0 80px}
@@ -29,7 +29,7 @@ body{background:#e8e4df;font-family:Arial,Helvetica,sans-serif;padding:12px 0 80
 .prat-row input{border:1.5px solid #a8c8e8;border-radius:5px;outline:none;font-size:9.5px;color:#1a1a1a;background:#e8f4fd;flex:1;padding:3px 6px;min-width:0}
 .prat-row .praticien-input{flex:none;width:240px;max-width:100%}
 .prat-row .date-grp{display:flex;align-items:baseline;margin-left:auto;gap:0;flex-shrink:0;justify-content:flex-end}
-.prat-row .date-grp input{width:130px;border:1.5px solid #a8c8e8;border-radius:5px;background:#e8f4fd;padding:3px 6px}
+.prat-row .date-grp input{width:130px;border:none;border-radius:0;background:transparent;padding:3px 6px;pointer-events:none;}
 
 /* TITRE BOX */
 .titre-box{border:1.5px solid #1a1a1a;padding:10px 12px;text-align:center;margin:12px 0}
@@ -155,7 +155,7 @@ body{background:#e8e4df;font-family:Arial,Helvetica,sans-serif;padding:12px 0 80
 
   <!-- JE SOUSSIGNE -->
   <div class="soussigne">
-    <span class="lbl">Je, soussigné(e)&nbsp;</span><input type="text" id="soussigneInput" class="soussigne-input" readonly="" tabindex="-1">&nbsp;m'engage à suivre toutes les recommandations et prescriptions pré et post-intervention données par le praticien qui les réalisera.
+    <span class="lbl">Je, soussigné(e)&nbsp;</span><input type="text" id="soussigneInput" class="soussigne-input" readonly tabindex="-1">&nbsp;m'engage à suivre toutes les recommandations et prescriptions pré et post-intervention données par le praticien qui les réalisera.
   </div>
   <div class="corps">
     <p>J'atteste avoir compris l'ensemble des explications, notamment que l'appréciation du résultat peut demander un délai plus long selon les cas.</p>
@@ -246,9 +246,6 @@ function isEmpty(id){const cv=document.getElementById(id);if(!cv)return true;con
 window.addEventListener('load',()=>{
   initCanvas('sigCanvas'); initCanvas('sigPraticien');
   setTimeout(()=>{initCanvas('sigCanvas');initCanvas('sigPraticien');},400);
-  const _now=new Date();
-  const today=String(_now.getDate()).padStart(2,'0')+'/'+String(_now.getMonth()+1).padStart(2,'0')+'/'+_now.getFullYear();
-  document.getElementById('dateConsult').value=today;
   // Auto-remplir soussigné quand nom/prénom changent
   ['nom','prenom'].forEach(id=>document.getElementById(id).addEventListener('input',syncSoussigne));
   syncSoussigne();
@@ -277,7 +274,9 @@ async function generer(){
 }
 
 async function generatePDF(){
-  const {jsPDF}=window.jspdf;
+  const jspdfLib=window.jspdf||window.jsPDF;
+  if(!jspdfLib||!jspdfLib.jsPDF){alert('Erreur : bibliothèque PDF non chargée. Vérifiez votre connexion internet.');hideLoading();return;}
+  const {jsPDF}=jspdfLib;
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   const nom=document.getElementById('nom').value.trim();
   const prenom=document.getElementById('prenom').value.trim();
